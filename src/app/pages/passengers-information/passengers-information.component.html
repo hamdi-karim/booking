@@ -1,0 +1,218 @@
+<div class="mt-2">
+  <p><strong>Passengers informations</strong></p>
+  <section fxLayout="row wrap" fxLayoutAlign="center center">
+    <div>
+      <form
+        [formGroup]="passengersform"
+        (ngSubmit)="submitPassengersForm()"
+        class="passengers-form"
+      >
+        <div
+          formArrayName="passengersArr"
+          *ngFor="let passenger of numberOfPassengers; let i = index"
+        >
+          <div [formGroupName]="i">
+            <mat-card fxFlex="500px" fxFlex.xs="100%" class="my-4 px-4">
+              <mat-card-title>{{ passenger }}</mat-card-title>
+              <mat-card-content>
+                <div class="flex-grid">
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Frequent flight number"
+                        formControlName="frequentflightnumber"
+                        [id]="'frequent-flight-number' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <mat-select formControlName="typePassenger">
+                        <mat-option *ngFor="let type of types" [value]="type">
+                          {{ type }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="First Name"
+                        formControlName="firstName"
+                        [id]="'first-Name' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Last Name"
+                        formControlName="lastName"
+                        [id]="'last-Name' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Middle Name"
+                        formControlName="middleName"
+                        [id]="'middle-Name' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        [matDatepicker]="birthdayPicker"
+                        placeholder="DOB (birthday)"
+                        formControlName="birthdayDateInput"
+                        [id]="'birthday-Date-Input' + i"
+                      />
+                      <mat-datepicker-toggle
+                        matSuffix
+                        [for]="birthdayPicker"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker #birthdayPicker></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Sex"
+                        formControlName="sex_passenger"
+                        [id]="'sexControl' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Weight"
+                        formControlName="weight_passenger"
+                        [id]="'weightControl' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <strong>Travel Documentation</strong>
+                <div class="flex-grid" formGroupName="travelDocumentation">
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <mat-select
+                        formControlName="typePassenger_travelDocs"
+                        placeholder="Document type"
+                      >
+                        <mat-option
+                          *ngFor="let document of documentTypes"
+                          [value]="document"
+                        >
+                          {{ document }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        [matDatepicker]="issuingDate"
+                        placeholder="Issuing date"
+                        formControlName="issuingDateInputTravelDocs"
+                      />
+                      <mat-datepicker-toggle
+                        matSuffix
+                        [for]="issuingDate"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker #issuingDate></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        [matDatepicker]="expiryDate"
+                        placeholder="Expiry date"
+                        formControlName="expiryDateInput"
+                      />
+                      <mat-datepicker-toggle
+                        matSuffix
+                        [for]="expiryDate"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker #expiryDate></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Place"
+                        formControlName="place_passenger"
+                        [id]="'placeControl' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Phone number"
+                        formControlName="phoneNumber_passenger"
+                        [id]="'phoneNumberControl' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                </div>
+                <strong>Additional Informations</strong>
+                <div class="flex-grid" formGroupName="additionalInfoGroup">
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Nationality"
+                        formControlName="nationality_additionalInfo"
+                        [id]="'nationalityControl_additionalInfo' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="column">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        type="text"
+                        placeholder="Phone number"
+                        formControlName="phoneNumber_additionalInfo"
+                        [id]="'phoneNumberControlAdditionalInfo' + i"
+                      />
+                    </mat-form-field>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <mat-card-actions>
+          <button type="submit" class="btn"></button>
+        </mat-card-actions>
+      </form>
+    </div>
+  </section>
+</div>

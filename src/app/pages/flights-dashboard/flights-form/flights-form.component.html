@@ -1,0 +1,237 @@
+<div class="mt-2">
+  <!-- <p><strong>Hey You !</strong></p>
+  <p><strong>Where are you going ?</strong></p> -->
+</div>
+<div class="form-container p-3">
+  <form
+    [formGroup]="bookingFlightFormGroup"
+    (submit)="onSubmitFlightsForm($event)"
+  >
+    <div class="searchFlightFormStruct">
+      <mat-radio-group
+        aria-label="Select an option"
+        #radioGroupType="matRadioGroup"
+        class="flightTypeRadioGroup"
+        formControlName="flightType"
+      >
+        <mat-radio-button class="mr-4" value="round-trip"
+          >Round trip</mat-radio-button
+        >
+        <mat-radio-button class="mr-4" value="one-way"
+          >One Way</mat-radio-button
+        >
+        <mat-radio-button class="mr-4" value="multi-city"
+          >Multi-city</mat-radio-button
+        >
+        <mat-radio-button class="mr-4" value="excursion"
+          >Excursion</mat-radio-button
+        >
+      </mat-radio-group>
+    </div>
+
+    <div class="form-content-data">
+      <mat-form-field class="example-full-width" appearance="outline">
+        <mat-label>From</mat-label>
+        <input
+          type="text"
+          matInput
+          placeholder="Departing"
+          formControlName="departureStateGroup"
+          [matAutocomplete]="autoGroupDepartureStation"
+        />
+        <mat-autocomplete
+          #autoGroupDepartureStation="matAutocomplete"
+          [displayWith]="displayFnDeparture(departureStateGroups)"
+          (optionSelected)="
+            getSelectedDepartingAutoComplete($event.option.value)
+          "
+        >
+          <mat-option
+            *ngFor="let departingAirport of departureStateGroups"
+            [value]="departingAirport.id"
+          >
+            {{ departingAirport.name }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field class="example-full-width" appearance="outline">
+        <mat-label>To</mat-label>
+        <input
+          type="text"
+          matInput
+          placeholder="Arriving"
+          formControlName="arrivingStateGroup"
+          [matAutocomplete]="autoGroupArrivingStation"
+        />
+        <mat-autocomplete
+          #autoGroupArrivingStation="matAutocomplete"
+          [displayWith]="displayFnArriving(arrivingStateGroups)"
+        >
+          <mat-option
+            *ngFor="let arrivingAirport of arrivingStateGroups"
+            [value]="arrivingAirport.id"
+          >
+            {{ arrivingAirport.name }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Departure Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="departurePicker"
+          formControlName="departureDateInput"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="departurePicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #departurePicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        *ngIf="radioGroupType.value === 'round-trip'"
+      >
+        <mat-label>Arriving Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="arrivingPicker"
+          formControlName="arrivingDateInput"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="arrivingPicker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #arrivingPicker></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-button [matMenuTriggerFor]="appMenu" type="button">
+        Passengers
+      </button>
+
+      <button mat-button class="btn btn-primary" type="submit" [disabled]="!bookingFlightFormGroup.valid">
+        Search flights
+      </button>
+    </div>
+    <div class="searchFlightFormStruct">
+      <mat-radio-group
+        aria-label="Select if international or domestic"
+        #radioGroupInternational="matRadioGroup"
+        class="flightInternationalRadioGroup"
+        formControlName="flightInternational"
+      >
+        <mat-radio-button class="mr-4" value="international"
+          >International</mat-radio-button
+        >
+        <mat-radio-button class="mr-4" value="domestic"
+          >Domestic</mat-radio-button
+        >
+      </mat-radio-group>
+    </div>
+  </form>
+</div>
+
+<mat-menu #appMenu="matMenu" [hasBackdrop]="true">
+  <ng-template matMenuContent>
+    <!-- ************** Adults Block ************** -->
+    <div
+      class="d-flex align-items-center my-1"
+      (click)="$event.stopPropagation()"
+    >
+      <span>Adults</span>
+      <div class="ml-auto d-flex align-items-center">
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Adding Button Passengers"
+          (click)="$event.stopPropagation(); removePassenger('adult')"
+        >
+          <mat-icon>remove</mat-icon>
+        </button>
+        <div class="mx-1">
+          {{ numberOfAdults }}
+        </div>
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Substract Button Passengers"
+          (click)="$event.stopPropagation(); addPassenger('adult')"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+    <!-- ************** Childs Block ************** -->
+    <div
+      class="d-flex align-items-center my-1"
+      (click)="$event.stopPropagation()"
+    >
+      <span>Children</span>
+      <div class="ml-auto d-flex align-items-center">
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Adding Button Passengers"
+          (click)="$event.stopPropagation(); removePassenger('child')"
+        >
+          <mat-icon>remove</mat-icon>
+        </button>
+        <div class="mx-1">
+          {{ numberOfChildren }}
+        </div>
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Substract Button Passengers"
+          (click)="$event.stopPropagation(); addPassenger('child')"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+    <!-- ************** Babies Block ************** -->
+    <div
+      class="d-flex align-items-center my-1"
+      (click)="$event.stopPropagation()"
+    >
+      <span>Babies</span>
+      <div class="ml-auto d-flex align-items-center">
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Adding Button Passengers"
+          (click)="$event.stopPropagation(); removePassenger('baby')"
+        >
+          <mat-icon>remove</mat-icon>
+        </button>
+        <div class="mx-1" numberOfBabies>{{ numberOfBabies }}</div>
+        <button
+          mat-mini-fab
+          color="primary"
+          aria-label="Substract Button Passengers"
+          (click)="$event.stopPropagation(); addPassenger('baby')"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+    <!-- ************** Senior rate Block ************** -->
+    <div
+      class="d-flex align-items-center my-2"
+      (click)="$event.stopPropagation()"
+    >
+      <mat-checkbox>Senior rate</mat-checkbox>
+    </div>
+    <!-- ************** Save button Block ************** -->
+    <div
+      class="d-flex align-items-center justify-content-center my-2"
+      (click)="$event.stopPropagation()"
+    >
+      <button mat-button color="primary">Save</button>
+      <button color="primary">exit</button>
+    </div>
+  </ng-template>
+</mat-menu>

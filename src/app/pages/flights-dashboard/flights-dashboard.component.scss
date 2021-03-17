@@ -1,0 +1,50 @@
+.totalAmountSection {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  border: 1px dashed #70707080;
+}
+
+.amountSpans {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+.moreOptionsRadioGroups {
+  display: inline-grid;
+}
+
+.next-button {
+  background-color: #ff4081;
+  color: #fff;
+}
+
+.otherFlightsCards {
+  background-color: #70707030;
+  margin: 1em 0;
+}
+
+.flightsConnectionsCards {
+  margin: 1em 0;
+  border: 1px dashed #70707080;
+}
+
+.connection-card-content {
+  align-items: center;
+}
+
+.connections {
+  display: flex;
+
+  .departing_line_group,
+  .arriving_line_group {
+    flex: 1;
+  }
+
+  .line_connection {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+}

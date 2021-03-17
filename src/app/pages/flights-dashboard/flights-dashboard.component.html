@@ -1,0 +1,294 @@
+<div class="container-fluid p-4">
+  <div class="row">
+    <div class="col">
+      <app-flights-form
+        (routesAvailable)="getAvailableRoutes($event)"
+        (submitted)="onSubmittedForm($event)"
+      ></app-flights-form>
+    </div>
+  </div>
+
+  <div class="dataAfterFormSubmitting mt-4" *ngIf="submitted">
+    <!-- Second Section -->
+    <strong>Available routes</strong>
+    <div class="row mt-4">
+      <div class="col">
+        <mat-radio-group
+          aria-label="Select an option"
+          #radioGroupDepartureLinesConnections="matRadioGroup"
+          class="linesConnectionsFlightsDepartureRadioGroup"
+        >
+        <mat-card class="flightsConnectionsCards" *ngFor="let flightRoute of availableRoutes">
+          <mat-radio-button class="mr-4" [value]="flightRoute.flight.flightNo">
+            <div class="container-fluid">
+              <div class="row connection-card-content">
+                <div class="col-2">
+                  <p>Flights</p>
+                  <p>{{flightRoute.flight.flightNo}}</p>
+                </div>
+                <div class="col-8">
+                  <div class="connections">
+                    <div class="departing_line_group">
+                      <p><strong>Departs</strong></p>
+                      <p>
+                        {{flightRoute.flight.from_iata}}
+                        <br />
+                        {{flightRoute.flight.departing | slice:0:5}}
+                      </p>
+                    </div>
+                    <div class="line_connection">
+                      <p>{{flightRoute.flight.stops === 1 ? flightRoute.flight.stops + " stop" : flightRoute.flight.stops + " stops"}}</p>
+                      <mat-icon aria-hidden="false" aria-label="arrow icon"
+                        >east</mat-icon
+                      >
+                    </div>
+                    <div class="arriving_line_group">
+                      <p><strong>Arrives</strong></p>
+                      <p>
+                        {{flightRoute.flight.to_iata}}
+                        <br />
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-2">{{flightRoute.flight.price}} $</div>
+              </div>
+            </div>
+          </mat-radio-button>
+        </mat-card>
+        </mat-radio-group>
+         </div>
+    </div>
+       <!-- <div class="row mt-4">
+      <div class="col">
+        <p>
+          <strong>Departure schedule</strong>
+        </p>
+        <mat-radio-group
+          aria-label="Select an option"
+          #radioGroupDepartureLinesConnections="matRadioGroup"
+          class="linesConnectionsFlightsDepartureRadioGroup"
+        >
+          <mat-card class="flightsConnectionsCards">
+            <mat-radio-button class="mr-4" value="first-cheap-dep">
+              <div class="container-fluid">
+                <div class="row connection-card-content">
+                  <div class="col-2">
+                    <p>Flights</p>
+                    <p>991</p>
+                  </div>
+                  <div class="col-8">
+                    <div class="connections">
+                      <div class="departing_line_group">
+                        <p><strong>Departs</strong></p>
+                        <p>
+                          Nassau
+                          <br />
+                          Thu 01:50PM
+                        </p>
+                      </div>
+                      <div class="line_connection">
+                        <p>1 stop</p>
+                        <mat-icon aria-hidden="false" aria-label="arrow icon"
+                          >east</mat-icon
+                        >
+                      </div>
+                      <div class="arriving_line_group">
+                        <p><strong>Arrives</strong></p>
+                        <p>
+                          Staniel Coy
+                          <br />
+                          Thu 02:20PM
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-2">124$</div>
+                </div>
+              </div>
+            </mat-radio-button>
+          </mat-card>
+          <mat-card class="flightsConnectionsCards">
+            <mat-radio-button class="mr-4" value="second-cheap-dep"
+              >Nossau --- Staniel Cay / 130$</mat-radio-button
+            >
+          </mat-card>
+          <mat-card class="flightsConnectionsCards">
+            <mat-radio-button class="mr-4" value="third-cheap-dep"
+              >Nossau --- Staniel Cay / 150$</mat-radio-button
+            >
+          </mat-card>
+        </mat-radio-group>
+      </div>
+      <div class="col">
+        <p>
+          <strong>Return schedule</strong>
+        </p>
+        <mat-radio-group
+          aria-label="Select an option"
+          #radioGroupArrinvingLinesConnections="matRadioGroup"
+          class="linesConnectionsArrivingRadioGroup"
+        >
+          <mat-card class="flightsConnectionsCards">
+            <mat-radio-button class="mr-4" value="first-cheap-arr"
+              >Staniel Cay --- Nossau / $124</mat-radio-button
+            >
+          </mat-card>
+          <mat-card class="flightsConnectionsCards">
+            <mat-radio-button class="mr-4" value="second-cheap-arr"
+              >Staniel Cay --- Nossau / 100$</mat-radio-button
+            >
+          </mat-card>
+          <mat-card class="flightsConnectionsCards">
+            <mat-radio-button class="mr-4" value="third-cheap-arr"
+              >Staniel Cay --- Nossau / 160$</mat-radio-button
+            >
+          </mat-card>
+        </mat-radio-group>
+      </div>
+    </div> -->
+
+    <!-- Third Section -->
+    <div class="row mt-4">
+      <div class="col">
+        <fieldset class="scheduler-border">
+          <legend class="scheduler-border">More option</legend>
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <strong>Change fee</strong>
+                <div class="mt-3">
+                  <mat-radio-group
+                    aria-label="Select an option"
+                    #radioGroupTypeChangeFees="matRadioGroup"
+                    class="radioGroupTypeChangeFees moreOptionsRadioGroups"
+                  >
+                    <mat-radio-button class="mr-4" value="refundable"
+                      >Refundable</mat-radio-button
+                    >
+                    <mat-radio-button class="mr-4" value="non-refundable"
+                      >Non refundable</mat-radio-button
+                    >
+                  </mat-radio-group>
+                </div>
+              </div>
+              <div class="col">
+                <strong>Excursion</strong>
+                <div class="mt-3">
+                  <mat-radio-group
+                    aria-label="Select an option"
+                    #radioGroupTypeChangeFees="matRadioGroup"
+                    class="radioGroupTypeChangeFees moreOptionsRadioGroups"
+                  >
+                    <mat-radio-button class="mr-4" value="regular"
+                      >Regular</mat-radio-button
+                    >
+                    <mat-radio-button class="mr-4" value="fare"
+                      >Fare</mat-radio-button
+                    >
+                  </mat-radio-group>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col">
+        <div class="totalAmountSection p-3">
+          <div class="totalParagraphText">
+            <p><strong>Total amount, including all taxes</strong></p>
+            <p><strong>and fees that will be charged</strong></p>
+          </div>
+          <div class="totalAmounts">
+            <div class="subTotalSpan amountSpans">
+              <span>Sub Total :</span>
+              <strong>585 $</strong>
+            </div>
+            <div class="vatSpan amountSpans">
+              <span>VAT :</span>
+              <strong>200 $</strong>
+            </div>
+            <div class="totalSpan amountSpans">
+              <span>Total :</span>
+              <strong>785 $</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="row mt-4">
+      <div class="col">
+        <div class="d-flex flex-row-reverse">
+          <button mat-button class="btn btn-secondary" type="button">
+            Next
+          </button>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="row mt-4">
+      <div class="col">
+        <div class="d-flex flex-row-reverse">
+          <button mat-button class="btn btn-secondary" matStepperNext>
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <h5>Other flights</h5>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <p>
+          Departure schedule
+        </p>
+        <mat-radio-group
+          aria-label="Select an option"
+          #radioGroupDepartureCheapFlights="matRadioGroup"
+          class="otherFlightsDepartureRadioGroup"
+        >
+          <mat-card class="otherFlightsCards">
+            <mat-radio-button class="mr-4" value="first-cheap-dep"
+              >Nossau --- Staniel Cay / 90$</mat-radio-button
+            >
+          </mat-card>
+          <mat-card class="otherFlightsCards">
+            <mat-radio-button class="mr-4" value="second-cheap-dep"
+              >Nossau --- Staniel Cay / 84$</mat-radio-button
+            >
+          </mat-card>
+        </mat-radio-group>
+      </div>
+      <div class="col">
+        <p>
+          Return schedule
+        </p>
+        <mat-radio-group
+          aria-label="Select an option"
+          #radioGroupArrinvingCheapFlights="matRadioGroup"
+          class="otherFlightsArrivingRadioGroup"
+        >
+          <mat-card class="otherFlightsCards">
+            <mat-radio-button class="mr-4" value="first-cheap-arr"
+              >Staniel Cay --- Nossau / $90</mat-radio-button
+            >
+          </mat-card>
+          <mat-card class="otherFlightsCards">
+            <mat-radio-button class="mr-4" value="second-cheap-arr"
+              >Staniel Cay --- Nossau / 84$</mat-radio-button
+            >
+          </mat-card>
+        </mat-radio-group>
+      </div>
+    </div>
+  </div>
+</div>

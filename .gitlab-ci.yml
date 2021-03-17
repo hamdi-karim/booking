@@ -1,0 +1,159 @@
+image: docker:18.09
+services:
+  - docker:18.09-dind
+
+variables:
+
+  DOCKER_HOST: tcp://docker:2375/
+    # Use the overlayfs driver for improved performance:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+cache:
+ #jobs of each branch always use the same cache: 
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+  
+
+  
+
+stages:
+  - sonar_analysis
+  - build
+  - deploy
+  #- deploy_staging
+
+  
+sonarscan:
+  stage: sonar_analysis
+  image: node:latest
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - apt-get update    
+    - wget -O /tmp/sonar-scanner-cli-4.4.0.2170-linux.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
+    - export PATH=$PATH:/root/sonar-scanner-4.4.0.2170-linux/bin
+    - base=$(pwd)
+    - cd /root
+    - unzip /tmp/sonar-scanner-cli-4.4.0.2170-linux.zip
+    - cd $base
+    - sonar-scanner -Dsonar.projectKey=bookingflight -Dsonar.sources=.  -Dsonar.host.url=http://192.168.1.82:9000 -Dsonar.login=619060edeeae083a537d71af3740ddea42154396 -Dsonar.projectVersion=1.0 -Dsonar.java.binaries=/. -Dsonar.sourceEncoding=UTF-8  -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml
+  tags:
+    - testing
+
+build:
+  stage: build
+  before_script: 
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+    - docker tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE:latest"
+    - docker logout "$CI_REGISTRY"
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  tags:
+    - testing
+    
+
+
+#deploy with ssh 
+#deploy_staging:
+#  stage: deploy_staging
+#  image: node:9.11.1-alpine
+#  before_script:
+#    - 'which ssh-agent || ( apk add --update openssh )' 
+#    - apk add --update bash
+#    - apk add --update git
+#    - mkdir -p ~/.ssh
+#    - eval "$(ssh-agent -s)"
+
+  
+#    - echo "${PRIVATE_KEY}"
+#    - echo "${PRIVATE_KEY}"  | tr -d '\r' | ssh-add -
+#    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    
+#  script: 
+#    - ssh -tt -i /root/.ssh/id_rsa "$MINIKUBE_USER@$MINIKUBE_ADDR" -p "$MINIKUBE_PORT"  "/home/ines/Document/script.sh"
+
+#  tags:
+#    - testing 
+
+# deploy with copy of cert
+#deploy:
+#  stage: deploy
+#  image: 
+  #before_script:
+   # - mkdir ~/.kube/
+   # - echo $KUBE_CONFIG | base64 -d > config
+    #- mv config ~/.kube/
+#  script:
+#    - kubectl config view
+#    - cat /etc/passwd
+#    - cat k8smanifest/manifest.yml
+#    - kubectl apply -f k8smanifest/manifest.yml
+
+.deploy-base:
+  # For deploying, we need an image that can interact with k8s. Using
+  # GitLab's own official image for this should be safe enough:
+  image: registry.gitlab.com/gitlab-org/cluster-integration/helm-install-image/releases/2.16.6-kube-1.13.12
+  variables:
+    # Define k8s namespace and domain used for deployment:
+    NS: booking
+    CI_ENVIRONMENT_DOMAIN: $CI_COMMIT_REF_SLUG
+  only:
+    # Deploy only branches and tags:
+    refs:
+      - branches
+      - tags
+    # Deploy only if k8s integration is configured:
+    kubernetes: active
+
+    
+deploy:branch:
+  stage: deploy
+  extends: .deploy-base
+  image: registry.gitlab.com/gitlab-org/cluster-integration/helm-install-image/releases/2.16.6-kube-1.13.12
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: https://192.168.1.114:8443
+  before_script:
+    - apk add gettext
+  script:
+    - kubectl get namespace  $NS && kubectl delete namespace $NS || true
+    - kubectl delete service  angular-webapp -n $NS || true
+    - kubectl create namespace $NS
+    - kubectl config view
+    # Make Docker credentials available for deployment:
+    - kubectl -n $NS create secret docker-registry doc-registry --docker-server="$CI_REGISTRY" --docker-username="$CI_REGISTRY_USER" --docker-password="$CI_REGISTRY_PASSWORD"
+    - kubectl -n $NS patch serviceaccount default -p '{"imagePullSecrets":[{"name":"doc-registry"}]}'
+    - kubectl -n $NS get pods
+    # Start and expose deployment, set up ingress:
+    - kubectl -n $NS apply -f k8smanifest/manifest.yml 
+    - kubectl -n $NS get services 
+    - kubectl -n $NS get pods 
+
+    # Wait for pod
+    - kubectl -n $NS wait --for=condition=available deployment/angular-webapp --timeout=180s
+    
+    - echo "You can see now your application running successfully"
+  tags:
+    - testing
+    
+deploy:stop_branch:
+  stage: deploy
+  extends: .deploy-base
+  when: manual
+  # This job must not have any dependencies, otherwise it will refuse to run
+  # when the artifact retention of previous jobs has expired:
+  dependencies: []
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+  variables:
+    # Disable checkout here because the ref might not be available anymore
+    GIT_STRATEGY: none
+  script:
+    - kubectl delete namespace $NS
+    
